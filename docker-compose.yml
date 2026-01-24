@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  # Uppermoon Website
+  website:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: uppermoon-website
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - uppermoon-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Telegram Bot (template - update with your bot repo)
+  # bot:
+  #   build:
+  #     context: ./bot
+  #     dockerfile: Dockerfile
+  #   container_name: uppermoon-bot
+  #   restart: unless-stopped
+  #   environment:
+  #     - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+  #     - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+  #   networks:
+  #     - uppermoon-network
+  #   depends_on:
+  #     - website
+
+networks:
+  uppermoon-network:
+    driver: bridge
