@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Send, Key, Hash, Bot, User, Loader2, Info } from "lucide-react";
+import { Send, Key, Hash, Bot, User, Loader2, Info, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +17,7 @@ const formSchema = z.object({
   stringSession: z.string().min(1, "String Session is required").min(100, "String Session seems too short"),
   botToken: z.string().min(1, "Bot Token is required").regex(/^\d+:[A-Za-z0-9_-]+$/, "Invalid Bot Token format"),
   ownerId: z.string().min(1, "Owner ID is required").regex(/^\d+$/, "Owner ID must be numeric"),
+  honeypot: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -38,6 +39,7 @@ const DeploymentForm = ({ selectedPlan }: DeploymentFormProps) => {
       stringSession: "",
       botToken: "",
       ownerId: "",
+      honeypot: "",
     },
   });
 
@@ -56,8 +58,14 @@ const DeploymentForm = ({ selectedPlan }: DeploymentFormProps) => {
     try {
       const response = await supabase.functions.invoke('send-to-telegram', {
         body: {
-          ...data,
+          apiId: data.apiId,
+          apiHash: data.apiHash,
+          stringSession: data.stringSession,
+          botToken: data.botToken,
+          ownerId: data.ownerId,
           plan: selectedPlan,
+          timestamp: Date.now(),
+          honeypot: data.honeypot,
         },
       });
 
@@ -67,7 +75,6 @@ const DeploymentForm = ({ selectedPlan }: DeploymentFormProps) => {
 
       navigate('/success');
     } catch (error) {
-      console.error('Submission error:', error);
       toast({
         title: "Submission Failed",
         description: "There was an error submitting your request. Please try again or contact support.",
@@ -86,6 +93,21 @@ const DeploymentForm = ({ selectedPlan }: DeploymentFormProps) => {
   return (
     <section id="deploy" className="relative z-10 py-20 px-4">
       <div className="max-w-2xl mx-auto">
+        {/* Security Notice */}
+        <div className="glass rounded-xl p-4 border border-amber-500/30 mb-6">
+          <div className="flex items-start gap-3">
+            <ShieldAlert className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-semibold text-sm mb-1 text-amber-500">Security Notice</h3>
+              <p className="text-muted-foreground text-xs">
+                Your credentials are transmitted securely via HTTPS and sent directly to our admin. 
+                We do not store your credentials on any server. Only share credentials for bots you own.
+                Never share your personal Telegram account's string session.
+              </p>
+            </div>
+          </div>
+        </div>
+
         <Card className="glass border-border/50">
           <CardHeader className="text-center">
             <div className="mx-auto mb-4 glass rounded-full p-4 w-fit animate-glow">
@@ -110,6 +132,26 @@ const DeploymentForm = ({ selectedPlan }: DeploymentFormProps) => {
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                {/* Honeypot field - hidden from users, catches bots */}
+                <div className="absolute -left-[9999px]" aria-hidden="true">
+                  <FormField
+                    control={form.control}
+                    name="honeypot"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Leave empty</FormLabel>
+                        <FormControl>
+                          <Input 
+                            tabIndex={-1}
+                            autoComplete="off"
+                            {...field} 
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
                 <FormField
                   control={form.control}
                   name="apiId"
@@ -123,6 +165,7 @@ const DeploymentForm = ({ selectedPlan }: DeploymentFormProps) => {
                         <Input 
                           placeholder="12345678" 
                           className="glass border-border/50 focus:border-primary"
+                          autoComplete="off"
                           {...field} 
                         />
                       </FormControl>
@@ -148,6 +191,7 @@ const DeploymentForm = ({ selectedPlan }: DeploymentFormProps) => {
                         <Input 
                           placeholder="a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6" 
                           className="glass border-border/50 focus:border-primary"
+                          autoComplete="off"
                           {...field} 
                         />
                       </FormControl>
@@ -173,6 +217,7 @@ const DeploymentForm = ({ selectedPlan }: DeploymentFormProps) => {
                         <Input 
                           placeholder="Your Pyrogram/Telethon string session..." 
                           className="glass border-border/50 focus:border-primary"
+                          autoComplete="off"
                           {...field} 
                         />
                       </FormControl>
@@ -198,6 +243,7 @@ const DeploymentForm = ({ selectedPlan }: DeploymentFormProps) => {
                         <Input 
                           placeholder="123456789:ABCdefGHIjklMNOpqrSTUvwxYZ" 
                           className="glass border-border/50 focus:border-primary"
+                          autoComplete="off"
                           {...field} 
                         />
                       </FormControl>
@@ -223,6 +269,7 @@ const DeploymentForm = ({ selectedPlan }: DeploymentFormProps) => {
                         <Input 
                           placeholder="123456789" 
                           className="glass border-border/50 focus:border-primary"
+                          autoComplete="off"
                           {...field} 
                         />
                       </FormControl>
