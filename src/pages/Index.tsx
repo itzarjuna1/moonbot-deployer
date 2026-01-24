@@ -3,8 +3,11 @@ import TelegramBackground from "@/components/TelegramBackground";
 import HeroSection from "@/components/HeroSection";
 import PricingCards from "@/components/PricingCards";
 import DeploymentForm from "@/components/DeploymentForm";
+import { useTelegramLogger } from "@/hooks/useTelegramLogger";
 
 const Index = () => {
+  // Initialize logger for page views and startup notification
+  useTelegramLogger();
   const [selectedPlan, setSelectedPlan] = useState<"1month" | "2months" | null>(null);
   const pricingRef = useRef<HTMLDivElement>(null);
 

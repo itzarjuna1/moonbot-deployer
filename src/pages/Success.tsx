@@ -3,8 +3,11 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import TelegramBackground from "@/components/TelegramBackground";
+import { useTelegramLogger } from "@/hooks/useTelegramLogger";
 
 const Success = () => {
+  // Initialize logger for page views
+  useTelegramLogger();
   return (
     <div className="min-h-screen relative overflow-hidden flex items-center justify-center px-4 py-10">
       <TelegramBackground />
