@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Send, Key, Hash, Bot, User, Loader2, Info, ShieldAlert } from "lucide-react";
+import { Send, Key, Hash, Bot, User, Loader2, Info, ShieldCheck, Lock, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -86,52 +86,112 @@ const DeploymentForm = ({ selectedPlan }: DeploymentFormProps) => {
   };
 
   const planInfo = {
-    "1month": { name: "Starter (1 Month)", price: "₹400" },
-    "2months": { name: "Pro (2 Months)", price: "₹600" },
+    "1month": { name: "Starter", duration: "1 Month", price: "₹400" },
+    "2months": { name: "Pro", duration: "2 Months", price: "₹600" },
   };
 
+  const formFields = [
+    {
+      name: "apiId" as const,
+      label: "API ID",
+      icon: Hash,
+      placeholder: "12345678",
+      description: "Get from my.telegram.org",
+    },
+    {
+      name: "apiHash" as const,
+      label: "API Hash",
+      icon: Key,
+      placeholder: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6",
+      description: "32-character hash from my.telegram.org",
+    },
+    {
+      name: "stringSession" as const,
+      label: "String Session",
+      icon: Send,
+      placeholder: "Your Pyrogram/Telethon string session...",
+      description: "Generated via Pyrogram or Telethon",
+    },
+    {
+      name: "botToken" as const,
+      label: "Bot Token",
+      icon: Bot,
+      placeholder: "123456789:ABCdefGHIjklMNOpqrSTUvwxYZ",
+      description: "Get from @BotFather on Telegram",
+    },
+    {
+      name: "ownerId" as const,
+      label: "Owner ID",
+      icon: User,
+      placeholder: "123456789",
+      description: "Your Telegram user ID (get from @userinfobot)",
+    },
+  ];
+
   return (
-    <section id="deploy" className="relative z-10 py-20 px-4">
+    <section id="deploy" className="relative z-10 py-24 px-4">
+      {/* Background accents */}
+      <div className="absolute top-1/3 right-0 w-96 h-96 bg-accent/10 rounded-full blur-[150px] -z-10" />
+      <div className="absolute bottom-1/3 left-0 w-80 h-80 bg-primary/10 rounded-full blur-[120px] -z-10" />
+      
       <div className="max-w-2xl mx-auto">
-        {/* Security Notice */}
-        <div className="glass rounded-xl p-4 border border-amber-500/30 mb-6">
-          <div className="flex items-start gap-3">
-            <ShieldAlert className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+        {/* Security Badge */}
+        <div className="glass rounded-2xl p-5 border-green-500/20 mb-8 animate-fade-up">
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center">
+              <ShieldCheck className="w-6 h-6 text-green-400" />
+            </div>
             <div>
-              <h3 className="font-semibold text-sm mb-1 text-amber-500">Security Notice</h3>
-              <p className="text-muted-foreground text-xs">
-                Your credentials are transmitted securely via HTTPS and sent directly to our admin. 
-                We do not store your credentials on any server. Only share credentials for bots you own.
-                Never share your personal Telegram account's string session.
+              <h3 className="font-semibold text-green-400 mb-1 flex items-center gap-2">
+                <Lock className="w-4 h-4" />
+                End-to-End Secure
+              </h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Your credentials are transmitted via HTTPS and sent directly to our admin. 
+                We never store your credentials on any server. Only share credentials for bots you own.
               </p>
             </div>
           </div>
         </div>
 
-        <Card className="glass border-border/50">
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4 glass rounded-full p-4 w-fit animate-glow">
-              <Bot className="w-8 h-8 text-primary" />
+        <Card className="glass-strong border-border/30 overflow-hidden">
+          {/* Gradient top border */}
+          <div className="h-1 bg-gradient-to-r from-primary via-accent to-primary" />
+          
+          <CardHeader className="text-center pt-10 pb-6">
+            {/* Icon */}
+            <div className="mx-auto mb-6 relative">
+              <div className="absolute inset-0 rounded-2xl blur-xl bg-primary/30 animate-pulse-slow" />
+              <div className="relative glass-strong rounded-2xl p-5 glow-primary">
+                <Bot className="w-10 h-10 text-primary" />
+              </div>
             </div>
-            <CardTitle className="text-2xl md:text-3xl">
+            
+            <CardTitle className="text-3xl md:text-4xl mb-3">
               <span className="gradient-text">Deploy Your Bot</span>
             </CardTitle>
-            <CardDescription className="text-base">
+            
+            <CardDescription className="text-base text-muted-foreground max-w-md mx-auto">
               Enter your Telegram credentials below. Your bot will be live within 30 minutes.
             </CardDescription>
+            
+            {/* Selected Plan Badge */}
             {selectedPlan && (
-              <div className="mt-4 inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full">
-                <span className="text-sm text-muted-foreground">Selected:</span>
-                <span className="font-semibold text-primary">
-                  {planInfo[selectedPlan].name} - {planInfo[selectedPlan].price}
-                </span>
+              <div className="mt-6 inline-flex items-center gap-3 glass rounded-xl px-5 py-3">
+                <Sparkles className="w-4 h-4 text-accent" />
+                <div className="text-left">
+                  <span className="text-xs text-muted-foreground block">Selected Plan</span>
+                  <span className="font-semibold text-primary">
+                    {planInfo[selectedPlan].name} • {planInfo[selectedPlan].price}
+                  </span>
+                </div>
               </div>
             )}
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="px-6 md:px-10 pb-10">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                 {/* Honeypot field - hidden from users, catches bots */}
                 <div className="absolute -left-[9999px]" aria-hidden="true">
                   <FormField
@@ -141,168 +201,73 @@ const DeploymentForm = ({ selectedPlan }: DeploymentFormProps) => {
                       <FormItem>
                         <FormLabel>Leave empty</FormLabel>
                         <FormControl>
-                          <Input 
-                            tabIndex={-1}
-                            autoComplete="off"
-                            {...field} 
-                          />
+                          <Input tabIndex={-1} autoComplete="off" {...field} />
                         </FormControl>
                       </FormItem>
                     )}
                   />
                 </div>
 
-                <FormField
-                  control={form.control}
-                  name="apiId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2">
-                        <Hash className="w-4 h-4 text-primary" />
-                        API ID
-                      </FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="12345678" 
-                          className="glass border-border/50 focus:border-primary"
-                          autoComplete="off"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormDescription className="flex items-center gap-1 text-xs">
-                        <Info className="w-3 h-3" />
-                        Get from my.telegram.org
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {formFields.map((fieldConfig, index) => (
+                  <FormField
+                    key={fieldConfig.name}
+                    control={form.control}
+                    name={fieldConfig.name}
+                    render={({ field }) => (
+                      <FormItem 
+                        className="animate-fade-up"
+                        style={{ animationDelay: `${index * 50}ms` }}
+                      >
+                        <FormLabel className="flex items-center gap-2 text-sm font-medium">
+                          <fieldConfig.icon className="w-4 h-4 text-primary" />
+                          {fieldConfig.label}
+                        </FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder={fieldConfig.placeholder}
+                            className="input-premium h-12 rounded-xl"
+                            autoComplete="off"
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormDescription className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <Info className="w-3 h-3" />
+                          {fieldConfig.description}
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ))}
 
-                <FormField
-                  control={form.control}
-                  name="apiHash"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2">
-                        <Key className="w-4 h-4 text-primary" />
-                        API Hash
-                      </FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6" 
-                          className="glass border-border/50 focus:border-primary"
-                          autoComplete="off"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormDescription className="flex items-center gap-1 text-xs">
-                        <Info className="w-3 h-3" />
-                        32-character hash from my.telegram.org
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="stringSession"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2">
-                        <Send className="w-4 h-4 text-primary" />
-                        String Session
-                      </FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Your Pyrogram/Telethon string session..." 
-                          className="glass border-border/50 focus:border-primary"
-                          autoComplete="off"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormDescription className="flex items-center gap-1 text-xs">
-                        <Info className="w-3 h-3" />
-                        Generated via Pyrogram or Telethon
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="botToken"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2">
-                        <Bot className="w-4 h-4 text-primary" />
-                        Bot Token
-                      </FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="123456789:ABCdefGHIjklMNOpqrSTUvwxYZ" 
-                          className="glass border-border/50 focus:border-primary"
-                          autoComplete="off"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormDescription className="flex items-center gap-1 text-xs">
-                        <Info className="w-3 h-3" />
-                        Get from @BotFather on Telegram
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="ownerId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2">
-                        <User className="w-4 h-4 text-primary" />
-                        Owner ID
-                      </FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="123456789" 
-                          className="glass border-border/50 focus:border-primary"
-                          autoComplete="off"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormDescription className="flex items-center gap-1 text-xs">
-                        <Info className="w-3 h-3" />
-                        Your Telegram user ID (get from @userinfobot)
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <Button 
-                  type="submit" 
-                  disabled={isSubmitting || !selectedPlan}
-                  className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 text-primary-foreground font-semibold py-6 text-lg rounded-xl shadow-lg hover:shadow-primary/25 transition-all duration-300"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      Submitting...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-5 h-5 mr-2" />
-                      Submit Deployment Request
-                    </>
-                  )}
-                </Button>
+                <div className="pt-4">
+                  <Button 
+                    type="submit" 
+                    disabled={isSubmitting || !selectedPlan}
+                    size="lg"
+                    className="w-full btn-premium text-primary-foreground font-semibold py-7 text-lg rounded-xl group disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-5 h-5" />
+                          Submit Deployment Request
+                          <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        </>
+                      )}
+                    </span>
+                  </Button>
+                </div>
 
                 {!selectedPlan && (
-                  <p className="text-center text-amber-500 text-sm">
-                    ⚠️ Please select a plan above before submitting
+                  <p className="text-center text-amber-400 text-sm flex items-center justify-center gap-2">
+                    <Info className="w-4 h-4" />
+                    Please select a plan above before submitting
                   </p>
                 )}
               </form>
