@@ -4,6 +4,7 @@ import TelegramBackground from "@/components/TelegramBackground";
 import HeroSection from "@/components/HeroSection";
 import PricingCards from "@/components/PricingCards";
 import DeploymentForm from "@/components/DeploymentForm";
+import HelpChatbot from "@/components/HelpChatbot";
 import { useTelegramLogger } from "@/hooks/useTelegramLogger";
 
 const Index = () => {
@@ -146,6 +147,9 @@ const Index = () => {
           </div>
         </div>
       </footer>
+
+      {/* Help Chatbot */}
+      <HelpChatbot />
     </div>
   );
 };
