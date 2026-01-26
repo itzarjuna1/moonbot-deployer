@@ -1,6 +1,5 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 
 interface LogData {
   type: 'error' | 'pageview' | 'startup' | 'info';
@@ -14,8 +13,15 @@ interface LogData {
 const loggedPages = new Set<string>();
 let startupLogged = false;
 
+// Lazy load supabase to avoid initialization errors
+const getSupabase = async () => {
+  const { supabase } = await import('@/integrations/supabase/client');
+  return supabase;
+};
+
 export const sendTelegramLog = async (data: LogData) => {
   try {
+    const supabase = await getSupabase();
     await supabase.functions.invoke('send-log', {
       body: {
         ...data,
