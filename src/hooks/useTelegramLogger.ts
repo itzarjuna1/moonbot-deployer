@@ -14,25 +14,46 @@ const loggedPages = new Set<string>();
 let startupLogged = false;
 
 // Lazy load supabase to avoid initialization errors
+let supabaseInstance: any = null;
+
 const getSupabase = async () => {
-  const { supabase } = await import('@/integrations/supabase/client');
-  return supabase;
+  if (supabaseInstance) return supabaseInstance;
+  
+  try {
+    const { supabase } = await import('@/integrations/supabase/client');
+    supabaseInstance = supabase;
+    return supabase;
+  } catch (error) {
+    console.warn('Supabase client not ready, will retry...');
+    return null;
+  }
 };
 
-export const sendTelegramLog = async (data: LogData) => {
-  try {
-    const supabase = await getSupabase();
-    await supabase.functions.invoke('send-log', {
-      body: {
-        ...data,
-        url: data.url || window.location.href,
-        userAgent: data.userAgent || navigator.userAgent,
-        timestamp: Date.now(),
-      },
-    });
-  } catch (error) {
-    // Silently fail - don't break the app for logging issues
-    console.error('Failed to send log:', error);
+export const sendTelegramLog = async (data: LogData, retries = 3) => {
+  for (let attempt = 0; attempt < retries; attempt++) {
+    try {
+      const supabase = await getSupabase();
+      if (!supabase) {
+        // Wait a bit and retry
+        await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)));
+        continue;
+      }
+      
+      await supabase.functions.invoke('send-log', {
+        body: {
+          ...data,
+          url: data.url || window.location.href,
+          userAgent: data.userAgent || navigator.userAgent,
+          timestamp: Date.now(),
+        },
+      });
+      return; // Success
+    } catch (error) {
+      if (attempt === retries - 1) {
+        // Final attempt failed - silently fail
+        console.error('Failed to send log after retries:', error);
+      }
+    }
   }
 };
 
