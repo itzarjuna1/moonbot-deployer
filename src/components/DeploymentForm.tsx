@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 const formSchema = z.object({
   apiId: z.string().min(1, "API ID is required").regex(/^\d+$/, "API ID must be numeric"),
@@ -56,6 +55,7 @@ const DeploymentForm = ({ selectedPlan }: DeploymentFormProps) => {
     setIsSubmitting(true);
 
     try {
+      const { supabase } = await import("@/integrations/supabase/client");
       const response = await supabase.functions.invoke('send-to-telegram', {
         body: {
           apiId: data.apiId,
