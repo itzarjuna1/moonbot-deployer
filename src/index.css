@@ -116,14 +116,30 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display font-bold tracking-wider;
+    @apply font-mono font-bold tracking-wider;
     font-variant: small-caps;
+    text-shadow: 0 0 20px hsl(210 100% 56% / 0.3);
   }
 
-  p, span, label, input, textarea, button {
+  p, span, label, button {
+    @apply font-mono;
     font-variant: small-caps;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.05em;
+  }
+
+  input, textarea {
+    @apply font-mono;
+    text-transform: none;
+    font-variant: normal;
+  }
+
+  /* Code-style text effect */
+  .code-text {
+    @apply font-mono;
+    text-shadow: 
+      0 0 10px hsl(210 100% 56% / 0.5),
+      0 0 20px hsl(270 65% 55% / 0.3);
   }
 
   ::selection {
