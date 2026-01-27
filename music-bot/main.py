@@ -1,11 +1,11 @@
-"""
-Uppermoon Music Bot - Main Entry Point
-A powerful Telegram music streaming bot using PyTgCalls
-"""
+#"""
+#Uppermoon Music Bot - Main Entry Point
+#A powerful Telegram music streaming bot using PyTgCalls
+#"""
 import asyncio
 import os
 import sys
-from loguru import logger
+from loguru import logger 
 
 # Configure logging
 logger.remove()
