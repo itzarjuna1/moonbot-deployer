@@ -11,7 +11,10 @@ interface Message {
   content: string;
 }
 
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/help-chat`;
+// Direct URL - more reliable than env variables in preview
+const SUPABASE_URL = "https://geivgnyebocxjphdvibm.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdlaXZnbnllYm9jeGpwaGR2aWJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkxOTA5MTcsImV4cCI6MjA4NDc2NjkxN30.8aJyS2HFGMFXJ-gXjtUC3u9eDEp0k3A8I0wUXpeREto";
+const CHAT_URL = `${SUPABASE_URL}/functions/v1/help-chat`;
 
 const HelpChatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -46,7 +49,7 @@ const HelpChatbot = () => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
       },
       body: JSON.stringify({ 
         messages: userMessages,

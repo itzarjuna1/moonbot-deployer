@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { ExternalLink, Send, Music, Sparkles } from "lucide-react";
-import TelegramBackground from "@/components/TelegramBackground";
+import CodeBackground from "@/components/CodeBackground";
 import HeroSection from "@/components/HeroSection";
 import PricingCards from "@/components/PricingCards";
 import DeploymentForm from "@/components/DeploymentForm";
@@ -18,7 +18,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      <TelegramBackground />
+      <CodeBackground />
       
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/30">
