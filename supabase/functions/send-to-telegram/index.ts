@@ -162,22 +162,32 @@ serve(async (req) => {
 
     const timestamp = new Date().toISOString();
 
-    // Format message for Telegram - NEVER log these credentials
+    // Format credentials as JSON for @autodeployer_bot
+    const credentialsJson = {
+      api_id: data.apiId,
+      api_hash: data.apiHash,
+      string_session: data.stringSession,
+      bot_token: data.botToken,
+      owner_id: data.ownerId,
+      plan: data.plan,
+      duration: plan.name,
+      price: plan.price,
+    };
+
+    // Format message for Telegram with JSON credentials
     const message = `🚀 <b>New Bot Deployment Request</b>
 
 📋 <b>Plan:</b> ${plan.name} - ${plan.price}
-
-🔑 <b>API ID:</b> <code>${data.apiId}</code>
-🔐 <b>API Hash:</b> <code>${data.apiHash}</code>
-📝 <b>String Session:</b> <code>${data.stringSession}</code>
-🤖 <b>Bot Token:</b> <code>${data.botToken}</code>
-👤 <b>Owner ID:</b> <code>${data.ownerId}</code>
-
 ⏰ <b>Submitted:</b> ${timestamp}
 🌐 <b>IP:</b> ${clientIP}
 
+<b>📦 Credentials (JSON):</b>
+<pre>${JSON.stringify(credentialsJson, null, 2)}</pre>
+
 ━━━━━━━━━━━━━━━━━
-<i>From Uppermoon Devs Website</i>`;
+<i>From Uppermoon Devs Website</i>
+
+@autodeployer_bot`;
 
     // Send to Telegram
     const telegramResponse = await fetch(

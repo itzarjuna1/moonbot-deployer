@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
+
 /* Uppermoon Devs - Premium Dark Theme Design System */
 
 @layer base {
@@ -106,8 +109,21 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    @apply bg-background text-foreground antialiased font-sans;
+    font-feature-settings: "rlig" 1, "calt" 1, "smcp" 1;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-bold tracking-wider;
+    font-variant: small-caps;
+  }
+
+  p, span, label, input, textarea, button {
+    font-variant: small-caps;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
   }
 
   ::selection {
