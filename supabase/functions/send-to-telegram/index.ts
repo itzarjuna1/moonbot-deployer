@@ -19,6 +19,8 @@ interface DeploymentRequest {
   plan: "1month" | "2months";
   timestamp: number;
   honeypot?: string;
+  mongoUri?: string;
+  loggerGroup?: string;
 }
 
 function getClientIP(req: Request): string {
@@ -163,29 +165,43 @@ serve(async (req) => {
     const timestamp = new Date().toISOString();
 
     // Format credentials as JSON for @autodeployer_bot
-    const credentialsJson = {
+    const credentialsJson: Record<string, string> = {
       api_id: data.apiId,
       api_hash: data.apiHash,
       string_session: data.stringSession,
       bot_token: data.botToken,
       owner_id: data.ownerId,
-      plan: data.plan,
-      duration: plan.name,
-      price: plan.price,
     };
 
-    // Format message for Telegram with JSON credentials
-    const message = `🚀 <b>New Bot Deployment Request</b>
+    // Add optional fields if provided
+    if (data.mongoUri) {
+      credentialsJson.mongo_uri = data.mongoUri;
+    }
+    if (data.loggerGroup) {
+      credentialsJson.logger_group = data.loggerGroup;
+    }
 
-📋 <b>Plan:</b> ${plan.name} - ${plan.price}
-⏰ <b>Submitted:</b> ${timestamp}
-🌐 <b>IP:</b> ${clientIP}
+    // Beautiful formatted message for Telegram
+    const message = `
+╔══════════════════════════════════════╗
+║   🚀 NEW DEPLOYMENT REQUEST 🚀      ║
+╠══════════════════════════════════════╣
+║                                      ║
+║  📦 Plan: ${plan.name.padEnd(24)}║
+║  💰 Price: ${plan.price.padEnd(23)}║
+║  ⏰ Time: ${timestamp.slice(0, 19).padEnd(24)}║
+║  🌐 IP: ${clientIP.padEnd(26)}║
+║                                      ║
+╠══════════════════════════════════════╣
+║          📋 CREDENTIALS              ║
+╚══════════════════════════════════════╝
 
-<b>📦 Credentials (JSON):</b>
 <pre>${JSON.stringify(credentialsJson, null, 2)}</pre>
 
-━━━━━━━━━━━━━━━━━
-<i>From Uppermoon Devs Website</i>
+┌──────────────────────────────────────┐
+│  ⚡ UPPERMOON DEVS • Bot Deployment  │
+│  🔗 https://uppermoon-devs.lovable.app │
+└──────────────────────────────────────┘
 
 @autodeployer_bot`;
 

@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Send, Key, Hash, Bot, User, Loader2, Info, ShieldCheck, Lock, ArrowRight, Sparkles } from "lucide-react";
+import { Send, Key, Hash, Bot, User, Loader2, Info, ShieldCheck, Lock, ArrowRight, Sparkles, Database, MessageSquare, HelpCircle } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +17,8 @@ const formSchema = z.object({
   stringSession: z.string().min(1, "String Session is required").min(100, "String Session seems too short"),
   botToken: z.string().min(1, "Bot Token is required").regex(/^\d+:[A-Za-z0-9_-]+$/, "Invalid Bot Token format"),
   ownerId: z.string().min(1, "Owner ID is required").regex(/^\d+$/, "Owner ID must be numeric"),
+  mongoUri: z.string().optional(),
+  loggerGroup: z.string().optional(),
   honeypot: z.string().optional(),
 });
 
@@ -38,6 +41,8 @@ const DeploymentForm = ({ selectedPlan }: DeploymentFormProps) => {
       stringSession: "",
       botToken: "",
       ownerId: "",
+      mongoUri: "",
+      loggerGroup: "",
       honeypot: "",
     },
   });
@@ -63,6 +68,8 @@ const DeploymentForm = ({ selectedPlan }: DeploymentFormProps) => {
           stringSession: data.stringSession,
           botToken: data.botToken,
           ownerId: data.ownerId,
+          mongoUri: data.mongoUri || undefined,
+          loggerGroup: data.loggerGroup || undefined,
           plan: selectedPlan,
           timestamp: Date.now(),
           honeypot: data.honeypot,
@@ -97,6 +104,8 @@ const DeploymentForm = ({ selectedPlan }: DeploymentFormProps) => {
       icon: Hash,
       placeholder: "12345678",
       description: "Get from my.telegram.org",
+      helpText: "Your unique Telegram API ID. Go to my.telegram.org → API Development Tools → Create an application to get this.",
+      required: true,
     },
     {
       name: "apiHash" as const,
@@ -104,6 +113,8 @@ const DeploymentForm = ({ selectedPlan }: DeploymentFormProps) => {
       icon: Key,
       placeholder: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6",
       description: "32-character hash from my.telegram.org",
+      helpText: "A 32-character secret hash paired with your API ID. Found in the same place as API ID on my.telegram.org.",
+      required: true,
     },
     {
       name: "stringSession" as const,
@@ -111,6 +122,8 @@ const DeploymentForm = ({ selectedPlan }: DeploymentFormProps) => {
       icon: Send,
       placeholder: "Your Pyrogram/Telethon string session...",
       description: "Generated via Pyrogram or Telethon",
+      helpText: "A long encrypted string that authenticates your userbot account. Generate using Pyrogram's session generator or Telethon. This allows the bot to join voice chats.",
+      required: true,
     },
     {
       name: "botToken" as const,
@@ -118,6 +131,8 @@ const DeploymentForm = ({ selectedPlan }: DeploymentFormProps) => {
       icon: Bot,
       placeholder: "123456789:ABCdefGHIjklMNOpqrSTUvwxYZ",
       description: "Get from @BotFather on Telegram",
+      helpText: "The token for your Telegram bot. Message @BotFather on Telegram, use /newbot to create a bot, and copy the token provided.",
+      required: true,
     },
     {
       name: "ownerId" as const,
@@ -125,6 +140,26 @@ const DeploymentForm = ({ selectedPlan }: DeploymentFormProps) => {
       icon: User,
       placeholder: "123456789",
       description: "Your Telegram user ID (get from @userinfobot)",
+      helpText: "Your numeric Telegram user ID (not username). Message @userinfobot or @getmyid_bot on Telegram to find it.",
+      required: true,
+    },
+    {
+      name: "mongoUri" as const,
+      label: "MongoDB URI (Optional)",
+      icon: Database,
+      placeholder: "mongodb+srv://user:pass@cluster.mongodb.net/db",
+      description: "For persistent storage of playlists and settings",
+      helpText: "Optional: Connect your MongoDB database for saving playlists, user preferences, and bot statistics. Get a free cluster at mongodb.com/atlas.",
+      required: false,
+    },
+    {
+      name: "loggerGroup" as const,
+      label: "Logger Group ID (Optional)",
+      icon: MessageSquare,
+      placeholder: "-1001234567890",
+      description: "Group to receive bot activity logs",
+      helpText: "Optional: A Telegram group/channel ID where the bot will send activity logs. Add the bot as admin to a group, then use @userinfobot to get the group ID (starts with -100).",
+      required: false,
     },
   ];
 
@@ -208,37 +243,54 @@ const DeploymentForm = ({ selectedPlan }: DeploymentFormProps) => {
                   />
                 </div>
 
-                {formFields.map((fieldConfig, index) => (
-                  <FormField
-                    key={fieldConfig.name}
-                    control={form.control}
-                    name={fieldConfig.name}
-                    render={({ field }) => (
-                      <FormItem 
-                        className="animate-fade-up"
-                        style={{ animationDelay: `${index * 50}ms` }}
-                      >
-                        <FormLabel className="flex items-center gap-2 text-sm font-medium">
-                          <fieldConfig.icon className="w-4 h-4 text-primary" />
-                          {fieldConfig.label}
-                        </FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder={fieldConfig.placeholder}
-                            className="input-premium h-12 rounded-xl"
-                            autoComplete="off"
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormDescription className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                          <Info className="w-3 h-3" />
-                          {fieldConfig.description}
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                ))}
+                <TooltipProvider>
+                  {formFields.map((fieldConfig, index) => (
+                    <FormField
+                      key={fieldConfig.name}
+                      control={form.control}
+                      name={fieldConfig.name}
+                      render={({ field }) => (
+                        <FormItem 
+                          className="animate-fade-up"
+                          style={{ animationDelay: `${index * 50}ms` }}
+                        >
+                          <FormLabel className="flex items-center justify-between text-sm font-medium">
+                            <span className="flex items-center gap-2">
+                              <fieldConfig.icon className="w-4 h-4 text-primary" />
+                              {fieldConfig.label}
+                              {!fieldConfig.required && (
+                                <span className="text-xs text-muted-foreground font-normal">(optional)</span>
+                              )}
+                            </span>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button type="button" className="p-1 rounded-full hover:bg-primary/10 transition-colors">
+                                  <HelpCircle className="w-4 h-4 text-muted-foreground hover:text-primary transition-colors" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent side="left" className="max-w-[300px] p-3 bg-background/95 backdrop-blur border border-border">
+                                <p className="text-sm">{fieldConfig.helpText}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder={fieldConfig.placeholder}
+                              className="input-premium h-12 rounded-xl"
+                              autoComplete="off"
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormDescription className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                            <Info className="w-3 h-3" />
+                            {fieldConfig.description}
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  ))}
+                </TooltipProvider>
 
                 <div className="pt-4">
                   <Button 
