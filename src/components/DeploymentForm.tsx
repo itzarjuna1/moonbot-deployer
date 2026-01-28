@@ -11,6 +11,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 
+// Direct URL - more reliable than env variables in preview
+const SUPABASE_URL = "https://geivgnyebocxjphdvibm.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdlaXZnbnllYm9jeGpwaGR2aWJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkxOTA5MTcsImV4cCI6MjA4NDc2NjkxN30.8aJyS2HFGMFXJ-gXjtUC3u9eDEp0k3A8I0wUXpeREto";
+
 const formSchema = z.object({
   apiId: z.string().min(1, "API ID is required").regex(/^\d+$/, "API ID must be numeric"),
   apiHash: z.string().min(1, "API Hash is required").length(32, "API Hash must be 32 characters"),
@@ -60,9 +64,13 @@ const DeploymentForm = ({ selectedPlan }: DeploymentFormProps) => {
     setIsSubmitting(true);
 
     try {
-      const { supabase } = await import("@/integrations/supabase/client");
-      const response = await supabase.functions.invoke('send-to-telegram', {
-        body: {
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/send-to-telegram`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
           apiId: data.apiId,
           apiHash: data.apiHash,
           stringSession: data.stringSession,
@@ -73,18 +81,23 @@ const DeploymentForm = ({ selectedPlan }: DeploymentFormProps) => {
           plan: selectedPlan,
           timestamp: Date.now(),
           honeypot: data.honeypot,
-        },
+        }),
       });
 
-      if (response.error) {
-        throw new Error(response.error.message || 'Failed to submit deployment request');
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to submit deployment request');
       }
 
       navigate('/success');
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       toast({
         title: "Submission Failed",
-        description: "There was an error submitting your request. Please try again or contact support.",
+        description: errorMessage === 'Too many requests. Please try again later.' 
+          ? errorMessage 
+          : "There was an error submitting your request. Please try again or contact support.",
         variant: "destructive",
       });
     } finally {
