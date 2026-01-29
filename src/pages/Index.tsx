@@ -1,11 +1,15 @@
 import { useState, useRef } from "react";
-import { ExternalLink, Send, Music, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
 import CodeBackground from "@/components/CodeBackground";
+import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import PricingCards from "@/components/PricingCards";
 import DeploymentForm from "@/components/DeploymentForm";
 import HelpChatbot from "@/components/HelpChatbot";
+import Footer from "@/components/Footer";
 import { useTelegramLogger } from "@/hooks/useTelegramLogger";
+import { Rocket, Zap, Shield, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   useTelegramLogger();
@@ -20,74 +24,58 @@ const Index = () => {
     <div className="min-h-screen relative overflow-hidden">
       <CodeBackground />
       
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/30">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="absolute inset-0 bg-primary/30 rounded-xl blur-lg" />
-              <div className="relative glass rounded-xl p-2.5">
-                <Send className="w-5 h-5 text-primary" />
-              </div>
-            </div>
-            <span className="font-bold text-lg tracking-tight">
-              <span className="gradient-text">Uppermoon</span>
-              <span className="text-muted-foreground"> Devs</span>
-            </span>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            {/* Music Bot Badge */}
-            <div className="hidden sm:flex items-center gap-2 glass rounded-full px-3 py-1.5">
-              <Music className="w-3.5 h-3.5 text-accent" />
-              <span className="text-xs font-medium text-muted-foreground">Music Bots Available</span>
-            </div>
-            
-            <a 
-              href="https://t.me/snowy_hometown" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="glass-hover px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2 group"
-            >
-              <span>Support</span>
-              <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
-            </a>
-          </div>
-        </div>
-      </header>
+      {/* Navbar */}
+      <Navbar />
 
       {/* Main Content */}
       <main>
         <HeroSection onGetStarted={handleGetStarted} />
         
         {/* Features Section */}
-        <section className="relative z-10 py-16 px-4">
-          <div className="max-w-5xl mx-auto">
+        <section className="relative z-10 py-20 px-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                Why Choose <span className="gradient-text">Uppermoon</span>?
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Enterprise-grade hosting with all the features you need to run a successful bot.
+              </p>
+            </div>
+            
             <div className="grid md:grid-cols-3 gap-6">
               {[
                 {
-                  icon: "🚀",
+                  icon: Rocket,
                   title: "Lightning Fast",
-                  description: "Your bot goes live in under 30 minutes with our streamlined deployment process."
+                  description: "Your bot goes live in under 30 minutes with our streamlined deployment process.",
+                  color: "text-primary",
+                  bgColor: "bg-primary/10"
                 },
                 {
-                  icon: "🎵",
+                  icon: Zap,
                   title: "Music Bot Support",
-                  description: "Full support for Pyrogram-based music bots with voice chat streaming capabilities."
+                  description: "Full support for Pyrogram-based music bots with voice chat streaming capabilities.",
+                  color: "text-accent",
+                  bgColor: "bg-accent/10"
                 },
                 {
-                  icon: "🛡️",
+                  icon: Shield,
                   title: "Enterprise Security",
-                  description: "End-to-end encryption with zero credential storage. Your data stays yours."
+                  description: "End-to-end encryption with zero credential storage. Your data stays yours.",
+                  color: "text-green-400",
+                  bgColor: "bg-green-500/10"
                 }
               ].map((feature, index) => (
                 <div 
                   key={index}
-                  className="glass-hover rounded-2xl p-6 text-center group animate-fade-up"
+                  className="glass-hover rounded-2xl p-8 text-center group animate-fade-up"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <div className="text-4xl mb-4">{feature.icon}</div>
-                  <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">
+                  <div className={`${feature.bgColor} w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                    <feature.icon className={`w-8 h-8 ${feature.color}`} />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-3 group-hover:text-primary transition-colors">
                     {feature.title}
                   </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
@@ -95,6 +83,16 @@ const Index = () => {
                   </p>
                 </div>
               ))}
+            </div>
+            
+            {/* View All Features Link */}
+            <div className="text-center mt-10">
+              <Link to="/features">
+                <Button variant="outline" className="glass-hover border-border/50 group">
+                  <span>View All Features</span>
+                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
             </div>
           </div>
         </section>
@@ -110,43 +108,7 @@ const Index = () => {
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 glass border-t border-border/30 py-12 px-4 mt-20">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            {/* Brand */}
-            <div className="flex items-center gap-3">
-              <div className="glass rounded-xl p-2">
-                <Send className="w-4 h-4 text-primary" />
-              </div>
-              <span className="font-semibold">
-                <span className="gradient-text">Uppermoon</span> Devs
-              </span>
-            </div>
-            
-            {/* Links */}
-            <div className="flex items-center gap-6">
-              <a 
-                href="https://t.me/snowy_hometown" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-primary transition-colors text-sm flex items-center gap-2"
-              >
-                <ExternalLink className="w-3.5 h-3.5" />
-                Telegram Support
-              </a>
-            </div>
-            
-            {/* Copyright */}
-            <div className="flex items-center gap-2 text-muted-foreground text-sm">
-              <span>© 2024 Uppermoon Devs</span>
-              <span>•</span>
-              <span className="flex items-center gap-1">
-                Made with <Sparkles className="w-3.5 h-3.5 text-accent" /> for Telegram
-              </span>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
 
       {/* Help Chatbot */}
       <HelpChatbot />

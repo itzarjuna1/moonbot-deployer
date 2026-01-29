@@ -8,6 +8,9 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { setupGlobalErrorHandler } from "@/hooks/useTelegramLogger";
 import Index from "./pages/Index";
 import Success from "./pages/Success";
+import Features from "./pages/Features";
+import About from "./pages/About";
+import FAQ from "./pages/FAQ";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -18,6 +21,9 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/" element={<Index />} />
       <Route path="/success" element={<Success />} />
+      <Route path="/features" element={<Features />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/faq" element={<FAQ />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>
