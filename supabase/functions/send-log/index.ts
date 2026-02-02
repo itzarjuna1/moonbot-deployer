@@ -60,31 +60,33 @@ serve(async (req) => {
     const config = typeConfig[data.type] || typeConfig.info;
     const timestamp = new Date().toISOString();
 
-    // Format message for Telegram
+    // Format message for Telegram using blockquote expandable
     let message = `${config.emoji} <b>${config.label}</b>\n\n`;
+    
+    message += `<blockquote expandable>\n`;
     message += `📝 <b>Message:</b> ${escapeHtml(data.message)}\n`;
     
     if (data.url) {
-      message += `🔗 <b>URL:</b> ${escapeHtml(data.url)}\n`;
+      // Remove preview URL, just show path
+      const urlPath = data.url.replace(/https?:\/\/[^\/]+/, '');
+      message += `🔗 <b>Path:</b> ${escapeHtml(urlPath || '/')}\n`;
     }
     
     if (data.details) {
-      // Truncate details if too long
-      const truncatedDetails = data.details.length > 500 
-        ? data.details.substring(0, 500) + '...' 
+      const truncatedDetails = data.details.length > 400 
+        ? data.details.substring(0, 400) + '...' 
         : data.details;
       message += `📋 <b>Details:</b>\n<code>${escapeHtml(truncatedDetails)}</code>\n`;
     }
     
     if (data.userAgent) {
-      // Parse user agent for cleaner display
       const browser = parseUserAgent(data.userAgent);
       message += `🌐 <b>Browser:</b> ${escapeHtml(browser)}\n`;
     }
     
-    message += `\n⏰ <b>Time:</b> ${timestamp}`;
-    message += `\n━━━━━━━━━━━━━━━━━`;
-    message += `\n<i>Uppermoon Devs Monitor</i>`;
+    message += `⏰ <b>Time:</b> ${timestamp}\n`;
+    message += `</blockquote>\n\n`;
+    message += `<i>Uppermoon Devs Monitor</i>`;
 
     // Send to Telegram
     const telegramResponse = await fetch(

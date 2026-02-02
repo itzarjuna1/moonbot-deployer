@@ -181,28 +181,20 @@ serve(async (req) => {
       credentialsJson.logger_group = data.loggerGroup;
     }
 
-    // Beautiful formatted message for Telegram
-    const message = `
-╔══════════════════════════════════════╗
-║   🚀 NEW DEPLOYMENT REQUEST 🚀      ║
-╠══════════════════════════════════════╣
-║                                      ║
-║  📦 Plan: ${plan.name.padEnd(24)}║
-║  💰 Price: ${plan.price.padEnd(23)}║
-║  ⏰ Time: ${timestamp.slice(0, 19).padEnd(24)}║
-║  🌐 IP: ${clientIP.padEnd(26)}║
-║                                      ║
-╠══════════════════════════════════════╣
-║          📋 CREDENTIALS              ║
-╚══════════════════════════════════════╝
+    // Beautiful formatted message for Telegram using blockquote expandable
+    const message = `🚀 <b>NEW DEPLOYMENT REQUEST</b>
 
-<pre>${JSON.stringify(credentialsJson, null, 2)}</pre>
+<blockquote expandable>
+📦 <b>Plan:</b> ${plan.name}
+💰 <b>Price:</b> ${plan.price}
+⏰ <b>Time:</b> ${timestamp.slice(0, 19)}
+🌐 <b>IP:</b> ${clientIP}
 
-┌──────────────────────────────────────┐
-│  ⚡ UPPERMOON DEVS • Bot Deployment  │
-│  🔗 https://uppermoon-devs.lovable.app │
-└──────────────────────────────────────┘
+📋 <b>Credentials:</b>
+<code>${JSON.stringify(credentialsJson, null, 2)}</code>
+</blockquote>
 
+⚡ <b>Uppermoon Devs</b> • Bot Deployment
 @autodeployer_bot`;
 
     // Send to Telegram

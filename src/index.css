@@ -2,8 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Google Fonts Import */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
+/* Google Fonts Import - Modern Sans (Outfit) + Mono for code */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
 
 /* Uppermoon Devs - Premium Dark Theme Design System */
 
@@ -109,29 +109,29 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased font-sans;
-    font-feature-settings: "rlig" 1, "calt" 1, "smcp" 1;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Outfit', system-ui, sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-mono font-bold tracking-wider;
-    font-variant: small-caps;
-    text-shadow: 0 0 20px hsl(210 100% 56% / 0.3);
+    font-family: 'Outfit', system-ui, sans-serif;
+    @apply font-bold tracking-tight;
   }
 
   p, span, label, button {
-    @apply font-mono;
-    font-variant: small-caps;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-family: 'Outfit', system-ui, sans-serif;
   }
 
   input, textarea {
-    @apply font-mono;
-    text-transform: none;
-    font-variant: normal;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  ::selection {
+    @apply bg-primary/30 text-foreground;
   }
 
   /* Code-style text effect */
