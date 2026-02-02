@@ -11,6 +11,8 @@ import Success from "./pages/Success";
 import Features from "./pages/Features";
 import About from "./pages/About";
 import FAQ from "./pages/FAQ";
+import Dashboard from "./pages/Dashboard";
+import Guidelines from "./pages/Guidelines";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +26,8 @@ const AppRoutes = () => {
       <Route path="/features" element={<Features />} />
       <Route path="/about" element={<About />} />
       <Route path="/faq" element={<FAQ />} />
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/guidelines" element={<Guidelines />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>
