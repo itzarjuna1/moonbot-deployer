@@ -86,7 +86,6 @@ serve(async (req) => {
     const TELEGRAM_CHAT_ID = Deno.env.get('TELEGRAM_CHAT_ID');
 
     if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
-      // Don't log sensitive config details
       return new Response(
         JSON.stringify({ error: 'Server configuration error' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -95,9 +94,8 @@ serve(async (req) => {
 
     const data: DeploymentRequest = await req.json();
 
-    // Honeypot check - if filled, it's a bot
+    // Honeypot check
     if (data.honeypot) {
-      // Silently accept but don't process (deceive bots)
       return new Response(
         JSON.stringify({ success: true, message: 'Deployment request submitted successfully' }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -112,7 +110,7 @@ serve(async (req) => {
       );
     }
 
-    // Validate required fields (without logging sensitive data)
+    // Validate required fields
     if (!data.apiId || !data.apiHash || !data.stringSession || !data.botToken || !data.ownerId || !data.plan) {
       return new Response(
         JSON.stringify({ error: 'Missing required fields' }),
@@ -173,7 +171,6 @@ serve(async (req) => {
       owner_id: data.ownerId,
     };
 
-    // Add optional fields if provided
     if (data.mongoUri) {
       credentialsJson.mongo_uri = data.mongoUri;
     }
@@ -181,8 +178,8 @@ serve(async (req) => {
       credentialsJson.logger_group = data.loggerGroup;
     }
 
-    // Beautiful formatted message for Telegram using blockquote expandable
-    const message = `🚀 <b>NEW DEPLOYMENT REQUEST</b>
+    // Admin notification message
+    const adminMessage = `🚀 <b>NEW DEPLOYMENT REQUEST</b>
 
 <blockquote expandable>
 📦 <b>Plan:</b> ${plan.name}
@@ -197,32 +194,64 @@ serve(async (req) => {
 ⚡ <b>Uppermoon Devs</b> • Bot Deployment
 @autodeployer_bot`;
 
-    // Send to Telegram
-    const telegramResponse = await fetch(
+    // Send to admin Telegram
+    const adminResponse = await fetch(
       `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           chat_id: TELEGRAM_CHAT_ID,
-          text: message,
+          text: adminMessage,
           parse_mode: 'HTML',
         }),
       }
     );
 
-    const telegramResult = await telegramResponse.json();
+    const adminResult = await adminResponse.json();
 
-    if (!telegramResult.ok) {
-      // Don't log the full error which might contain sensitive info
+    if (!adminResult.ok) {
       return new Response(
         JSON.stringify({ error: 'Failed to process request' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Log only non-sensitive metadata
-    console.log(`Deployment request processed for plan: ${data.plan}, IP: ${clientIP}`);
+    // Send to user's logger group if provided
+    if (data.loggerGroup) {
+      const userMessage = `🎵 <b>DEPLOYMENT INITIATED</b>
+
+<blockquote expandable>
+✅ <b>Status:</b> Pending Deployment
+📦 <b>Plan:</b> ${plan.name}
+⏰ <b>Submitted:</b> ${timestamp.slice(0, 19)}
+👤 <b>Owner:</b> ${data.ownerId}
+</blockquote>
+
+🔔 <i>You will receive updates here once your bot is live.</i>
+⚡ <b>Uppermoon Devs</b>`;
+
+      // Best effort - don't fail if user group message fails
+      try {
+        await fetch(
+          `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: data.loggerGroup,
+              text: userMessage,
+              parse_mode: 'HTML',
+            }),
+          }
+        );
+      } catch (e) {
+        // Silent fail for user group
+        console.log('Failed to send to user logger group');
+      }
+    }
+
+    console.log(`Deployment request processed for plan: ${data.plan}`);
 
     return new Response(
       JSON.stringify({ success: true, message: 'Deployment request submitted successfully' }),

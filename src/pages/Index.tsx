@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import CodeBackground from "@/components/CodeBackground";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import HelpChatbot from "@/components/HelpChatbot";
@@ -12,65 +11,62 @@ const Index = () => {
   useTelegramLogger();
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      <CodeBackground />
+    <div className="min-h-screen bg-background">
       <Navbar />
 
       <main>
         <HeroSection />
 
         {/* Features Section */}
-        <section className="relative z-10 py-20 px-4">
-          <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-2xl md:text-3xl font-bold mb-3">
-                Why Choose <span className="gradient-text">Uppermoon</span>?
+        <section className="py-24 px-4 border-t border-border">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-2xl md:text-3xl font-semibold mb-4">
+                Why Choose Uppermoon?
               </h2>
-              <p className="text-muted-foreground max-w-xl mx-auto text-sm">
-                Enterprise-grade hosting with all the features you need.
+              <p className="text-muted-foreground max-w-lg mx-auto">
+                Enterprise-grade infrastructure for your Telegram bots.
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-3 gap-8">
               {[
                 {
                   icon: Rocket,
-                  title: "Lightning Fast",
-                  description: "Your bot goes live in under 30 minutes.",
+                  title: "Fast Deployment",
+                  description: "Your bot goes live in under 30 minutes after submission.",
                 },
                 {
                   icon: Zap,
                   title: "Music Bot Support",
-                  description: "Full Pyrogram music bot with voice chat.",
+                  description: "Full Pyrogram music bot with voice chat integration.",
                 },
                 {
                   icon: Shield,
-                  title: "Enterprise Security",
-                  description: "End-to-end encryption. Zero storage.",
+                  title: "Secure Hosting",
+                  description: "End-to-end encryption. Your credentials are never stored.",
                 },
               ].map((feature, index) => (
                 <div
                   key={index}
-                  className="glass-hover rounded-xl p-6 text-center group"
+                  className="p-6 rounded-lg border border-border bg-card/50 hover:bg-card transition-colors"
                 >
-                  <div className="bg-primary/10 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                    <feature.icon className="w-6 h-6 text-primary" />
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                    <feature.icon className="w-5 h-5 text-primary" />
                   </div>
-                  <h3 className="font-semibold mb-2 group-hover:text-primary transition-colors">
-                    {feature.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
+                  <h3 className="font-medium mb-2">{feature.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
                     {feature.description}
                   </p>
                 </div>
               ))}
             </div>
 
-            <div className="text-center mt-10">
+            <div className="text-center mt-12">
               <Link to="/features">
-                <Button variant="outline" className="glass-hover border-border/50 group">
+                <Button variant="outline" className="border-border">
                   View All Features
-                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
             </div>
